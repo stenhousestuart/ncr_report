@@ -1,0 +1,53 @@
+---
+title: "<b>NCR Report</b>"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: "hide"
+  pdf_document: default
+---
+
+# Introduction
+
+
+# Visualisations
+
+<!--html_preserve-->
+
+<div class = "row">
+  <div class = "col-md-6">
+  
+<h4>Total Charging Devices</h4>
+
+<iframe src = "fig_1.html" width="500" height="500" frameBorder="0"> </iframe>
+
+</div>
+<div class = "col-md-6">
+
+
+</div>
+</div>
+
+<div class = "row">
+  <div class = "col-md-6">
+  
+<h4>Charging Devices Per 100,000 of Population</h4>
+
+<iframe src = "fig_2.html" width="500" height="500" frameBorder="0"> </iframe>
+
+</div>
+<div class = "col-md-6">
+
+
+
+</div>
+</div>
+
+<!--/html_preserve-->
+
+
+# Insights
+
+# Data Sources

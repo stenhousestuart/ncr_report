@@ -9,14 +9,15 @@ output:
   pdf_document: default
 ---
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 library(tidyverse)
 library(sf)
 library(janitor)
 library(leaflet)
+library(htmlwidgets)
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 ncr_data <- read_csv("data/raw_data/national-charge-point-registry.csv") %>% 
   clean_names() %>%
   filter(charge_device_status == "In service") %>% 
@@ -33,7 +34,7 @@ scottish_councils <- st_read(dsn = "data/geo_data/", layer = "pub_las", quiet = 
 
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 
 ncr_council_summary <- ncr_data %>% 
   inner_join(postcodes, "postcode") %>%
@@ -42,7 +43,7 @@ ncr_council_summary <- ncr_data %>%
   
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 population_summary <- population %>%
   filter(year == "2021",
          council_area != "Scotland") %>%
@@ -51,20 +52,20 @@ population_summary <- population %>%
   summarise(total_population = sum(population))
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 ncr_council_summary_pop <- ncr_council_summary %>% 
   inner_join(population_summary, by=c("district" = "council_area")) %>% 
   mutate(devices_per_hundred_thousand = n / (total_population / 100000))
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 
 ncr_council_geo <- scottish_councils %>%
   left_join(ncr_council_summary_pop, by=c("local_auth" = "district"))
 
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 bins <- c(0, 10, 20, 30, 40, 50, 60, 70, 80)
 pal <- colorBin("YlOrRd", domain = ncr_council_geo$devices_per_hundred_thousand, bins = bins)
 
@@ -82,8 +83,32 @@ labels_n <- sprintf(
 ) %>% lapply(htmltools::HTML)
 ```
 
-```{r}
-leaflet(options = leafletOptions(minZoom = 6)) %>%
+```{r, message = FALSE}
+fig_1 <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+  setView(lng = -5, lat = 56, zoom = 6) %>%
+  setMaxBounds(lng1 = -1,
+               lat1 = 54,
+               lng2 = -9,
+               lat2 = 63) %>% 
+  addProviderTiles(providers$CartoDB.PositronNoLabels) %>% 
+  addPolygons(data = ncr_council_geo,
+              weight = 1,
+              color = "black",
+              fillColor = ~pal_n(ncr_council_geo$n),
+              label = labels_n,
+              highlightOptions = highlightOptions(
+                  weight = 3,
+                  color = "black",
+                  bringToFront = TRUE)) %>% 
+  addLegend("bottomright",
+            pal = pal_n,
+            values = ncr_council_geo$n,
+            title = "Total Devices",
+            opacity = 1)
+```
+
+```{r, message = FALSE}
+fig_2 <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
   setView(lng = -5, lat = 56, zoom = 6) %>%
   setMaxBounds(lng1 = -1,
                lat1 = 54,
@@ -107,31 +132,7 @@ leaflet(options = leafletOptions(minZoom = 6)) %>%
 ```
 
 ```{r}
-leaflet(options = leafletOptions(minZoom = 6)) %>%
-  setView(lng = -5, lat = 56, zoom = 6) %>%
-  setMaxBounds(lng1 = -1,
-               lat1 = 54,
-               lng2 = -9,
-               lat2 = 63) %>% 
-  addProviderTiles(providers$CartoDB.PositronNoLabels) %>% 
-  addPolygons(data = ncr_council_geo,
-              weight = 1,
-              color = "black",
-              fillColor = ~pal_n(ncr_council_geo$n),
-              label = labels_n,
-              highlightOptions = highlightOptions(
-                  weight = 3,
-                  color = "black",
-                  bringToFront = TRUE)) %>% 
-  addLegend("bottomright",
-            pal = pal_n,
-            values = ncr_council_geo$n,
-            title = "Total Devices",
-            opacity = 1)
+saveWidget(fig_1, file = "fig_1.html")
+saveWidget(fig_2, file = "fig_2.html")
 ```
-
-
-
-
-
 
