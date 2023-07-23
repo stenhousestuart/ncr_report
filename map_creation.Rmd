@@ -15,47 +15,7 @@ library(sf)
 library(janitor)
 library(leaflet)
 library(htmlwidgets)
-```
-
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-ncr_data <- read_csv("data/raw_data/national-charge-point-registry.csv") %>% 
-  clean_names() %>%
-  filter(charge_device_status == "In service") %>% 
-  select(charge_device_id, postcode)
-  
-postcodes <- read_csv("data/raw_data/scotland_postcodes.csv") %>% 
-  clean_names() %>% 
-  select(postcode, district)
-
-population <- read_csv("data/raw_data/council-area-profiles-dataset-with-copyright_population-estimates.csv") %>% 
-  clean_names()
-
-scottish_councils <- st_read(dsn = "data/geo_data/", layer = "pub_las", quiet = TRUE) %>% st_transform('+proj=longlat +datum=WGS84')
-
-```
-
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-
-ncr_council_summary <- ncr_data %>% 
-  inner_join(postcodes, "postcode") %>%
-  mutate(district = recode(district, "Na h-Eileanan Siar" = "Eilean Siar")) %>% 
-  count(district)
-  
-```
-
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-population_summary <- population %>%
-  filter(year == "2021",
-         council_area != "Scotland") %>%
-  mutate(council_area = recode(council_area, "Na h-Eileanan Siar" = "Eilean Siar")) %>%
-  group_by(council_area) %>% 
-  summarise(total_population = sum(population))
-```
-
-```{r, echo = FALSE, warning = FALSE, message = FALSE}
-ncr_council_summary_pop <- ncr_council_summary %>% 
-  inner_join(population_summary, by=c("district" = "council_area")) %>% 
-  mutate(devices_per_hundred_thousand = n / (total_population / 100000))
+library(gt)
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
@@ -84,7 +44,7 @@ labels_n <- sprintf(
 ```
 
 ```{r, message = FALSE}
-fig_1 <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+fig_1 <- leaflet(options = leafletOptions(minZoom = 6)) %>%
   setView(lng = -5, lat = 56, zoom = 6) %>%
   setMaxBounds(lng1 = -1,
                lat1 = 54,
@@ -100,7 +60,7 @@ fig_1 <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
                   weight = 3,
                   color = "black",
                   bringToFront = TRUE)) %>% 
-  addLegend("bottomright",
+  addLegend("bottomleft",
             pal = pal_n,
             values = ncr_council_geo$n,
             title = "Total Devices",
@@ -108,7 +68,7 @@ fig_1 <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
 ```
 
 ```{r, message = FALSE}
-fig_2 <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
+fig_2 <- leaflet(options = leafletOptions(minZoom = 6)) %>%
   setView(lng = -5, lat = 56, zoom = 6) %>%
   setMaxBounds(lng1 = -1,
                lat1 = 54,
@@ -124,7 +84,7 @@ fig_2 <- leaflet(options = leafletOptions(zoomControl = FALSE)) %>%
                   weight = 3,
                   color = "black",
                   bringToFront = TRUE)) %>% 
-  addLegend("bottomright",
+  addLegend("bottomleft",
             pal = pal,
             values = ncr_council_geo$devices_per_hundred_thousand,
             title = "Devices / 100,000",

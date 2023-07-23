@@ -1,5 +1,5 @@
 ---
-title: "<b>NCR Report</b>"
+title: "<b>Electric Vehicle Charging Devices (Scotland)</b>"
 output:
   html_document:
     theme: flatly
@@ -9,45 +9,140 @@ output:
   pdf_document: default
 ---
 
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(sf)
+library(janitor)
+library(leaflet)
+library(htmlwidgets)
+library(gt)
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ncr_data <- read_csv("data/raw_data/national-charge-point-registry.csv") %>% 
+  clean_names() %>%
+  filter(charge_device_status == "In service") %>% 
+  select(charge_device_id, postcode)
+  
+postcodes <- read_csv("data/raw_data/scotland_postcodes.csv") %>% 
+  clean_names() %>% 
+  select(postcode, district)
+
+population <- read_csv("data/raw_data/council-area-profiles-dataset-with-copyright_population-estimates.csv") %>% 
+  clean_names()
+
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+ncr_council_summary <- ncr_data %>% 
+  inner_join(postcodes, "postcode") %>%
+  mutate(district = recode(district, "Na h-Eileanan Siar" = "Eilean Siar")) %>% 
+  count(district)
+  
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+population_summary <- population %>%
+  filter(year == "2021",
+         council_area != "Scotland") %>%
+  mutate(council_area = recode(council_area, "Na h-Eileanan Siar" = "Eilean Siar")) %>%
+  group_by(council_area) %>% 
+  summarise(total_population = sum(population))
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ncr_council_summary_pop <- ncr_council_summary %>% 
+  inner_join(population_summary, by=c("district" = "council_area")) %>% 
+  mutate(devices_per_hundred_thousand = n / (total_population / 100000))
+```
+
+*Disclaimer: This report is intended as a proof ability to produce technical reports and visualisations using relevant data. Additional data sources and investigation is required in order to make a final estimate on the numbers of chargepoints in each Local Authority.*
+
 # Introduction
 
+Based on data from the [National Chargepoint Registry](https://www.gov.uk/guidance/find-and-use-data-on-public-electric-vehicle-chargepoints) the following report provides insight into the number of charging devices relative to the population size and the total number of devices in Scotland's Local Authorities.
 
-# Visualisations
+Data was sources from the National Chargepoint Registry in *July 2023* and the post-codes provided for each device used to map these to the appropriate Local Authority. Only exact post-code matches were accepted.
 
+***
+
+# Devices Per 100,000 of Population
+
+<div class = "row">
+  <div class = "col-md-7">
+  
 <!--html_preserve-->
-
-<div class = "row">
-  <div class = "col-md-6">
-  
-<h4>Total Charging Devices</h4>
-
-<iframe src = "fig_1.html" width="500" height="500" frameBorder="0"> </iframe>
-
-</div>
-<div class = "col-md-6">
-
-
-</div>
-</div>
-
-<div class = "row">
-  <div class = "col-md-6">
-  
-<h4>Charging Devices Per 100,000 of Population</h4>
-
 <iframe src = "fig_2.html" width="500" height="500" frameBorder="0"> </iframe>
-
-</div>
-<div class = "col-md-6">
-
-
-
-</div>
-</div>
-
 <!--/html_preserve-->
 
+</div>
+<div class = "col-md-5">
 
-# Insights
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ncr_council_summary_pop %>% 
+  select(district, devices_per_hundred_thousand) %>%
+  mutate(devices_per_hundred_thousand = round(devices_per_hundred_thousand)) %>%
+  arrange(desc(devices_per_hundred_thousand)) %>%
+  gt() %>%
+  cols_label(
+    district = md("**Local Authority**"),
+    devices_per_hundred_thousand = md("**Devices Per 100,000**")) %>% 
+  opt_interactive(use_sorting = FALSE, 
+                  use_search = TRUE, 
+                  use_compact_mode = TRUE) %>% 
+  tab_options(column_labels.font.weight = "bold", table.align = "left")
+```
+
+
+</div>
+</div>
+
+***
+
+# Total Devices
+
+<div class = "row">
+  <div class = "col-md-7">
+
+<!--html_preserve-->
+<iframe src = "fig_1.html" width="500" height="500" frameBorder="0"> </iframe>
+<!--/html_preserve-->
+
+</div>
+
+<div class = "col-md-5">
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ncr_council_summary_pop %>% 
+  select(district, n) %>% 
+  arrange(desc(n)) %>%
+  gt() %>%
+  cols_label(
+    district = md("**Local Authority**"),
+    n = md("**Charging Devices**")) %>% 
+  opt_interactive(use_sorting = FALSE, 
+                  use_search = TRUE, 
+                  use_compact_mode = TRUE) %>% 
+  tab_options(column_labels.font.weight = "bold", table.align = "left")
+```
+
+
+</div>
+</div>
+
+***
 
 # Data Sources
+
+- Source: National Chargepoint Registry / Open Government Licence v3.0 / Crown Copyright 2023
+https://www.gov.uk/guidance/find-and-use-data-on-public-electric-vehicle-chargepoints
+
+- Source: National Records of Scotland: Council Area Profiles / Open Government Licence v3.0 / Crown Copyright 2023
+https://www.nrscotland.gov.uk/statistics-and-data/statistics/stats-at-a-glance/council-area-profiles
+
+- spatialdata.gov.scot / Open Government Licence v3.0 / Crown Copyright 2023
+https://spatialdata.gov.scot/geonetwork/srv/api/records/1cd57ea6-8d6e-412b-a9dd-d1c89a80ad62
+
+- doogal.co.uk / Public Domain 
+https://www.doogal.co.uk/PostcodeDownloads
