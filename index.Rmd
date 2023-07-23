@@ -73,7 +73,7 @@ Data was sources from the National Chargepoint Registry in *July 2023* and the p
   <div class = "col-md-7">
   
 <!--html_preserve-->
-<iframe src = "fig_2.html" width="500" height="500" frameBorder="0"> </iframe>
+<iframe src = "maps/fig_2.html" width="500" height="500" frameBorder="0"> </iframe>
 <!--/html_preserve-->
 
 </div>
@@ -106,7 +106,7 @@ ncr_council_summary_pop %>%
   <div class = "col-md-7">
 
 <!--html_preserve-->
-<iframe src = "fig_1.html" width="500" height="500" frameBorder="0"> </iframe>
+<iframe src = "maps/fig_1.html" width="500" height="500" frameBorder="0"> </iframe>
 <!--/html_preserve-->
 
 </div>
