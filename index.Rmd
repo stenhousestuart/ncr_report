@@ -16,13 +16,13 @@ library(janitor)
 library(leaflet)
 library(htmlwidgets)
 library(gt)
+library(plotly)
+library(gghighlight)
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 ncr_data <- read_csv("data/raw_data/national-charge-point-registry.csv") %>% 
-  clean_names() %>%
-  filter(charge_device_status == "In service") %>% 
-  select(charge_device_id, postcode)
+  clean_names()
   
 postcodes <- read_csv("data/raw_data/scotland_postcodes.csv") %>% 
   clean_names() %>% 
@@ -35,7 +35,9 @@ population <- read_csv("data/raw_data/council-area-profiles-dataset-with-copyrig
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 
-ncr_council_summary <- ncr_data %>% 
+ncr_council_summary <- ncr_data %>%
+  filter(charge_device_status == "In service") %>% 
+  select(charge_device_id, postcode) %>% 
   inner_join(postcodes, "postcode") %>%
   mutate(district = recode(district, "Na h-Eileanan Siar" = "Eilean Siar")) %>% 
   count(district)
@@ -132,6 +134,39 @@ ncr_council_summary_pop %>%
 </div>
 
 ***
+
+# Trends Over Time
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, fig.align = 'center'}
+
+ncr_data %>%
+  filter(charge_device_status == "In service") %>%
+  inner_join(postcodes, "postcode") %>%
+  mutate(district = recode(district, "Na h-Eileanan Siar" = "Eilean Siar"),
+         date_created = as.POSIXct(date_created),
+         date_created = year(date_created)) %>%
+  filter(date_created > 2017,
+         date_created < 2023,
+         district %in% c("Glasgow City", "Dumfries and Galloway", 
+                         "South Lanarkshire", "Fife", "City of Edinburgh", 
+                         "East Lothian")) %>% 
+  group_by(date_created, district) %>% 
+  summarise(annual_new_by_district = n()) %>%
+  ggplot(aes(x = date_created, y = annual_new_by_district, colour = district)) +
+  geom_line(size = 1.5) +
+  geom_point(size = 3) +
+  gghighlight(max(annual_new_by_district) > 60) +
+  labs(
+    x = "\n Year",
+    y = "New Devices Added \n",
+    title = "New Devices Added To NCR: The Last 5 Years In Scotland",
+    subtitle = "Where Total Devices Is Greater Than 50",
+    colour = "Local Authority") +
+  theme(panel.background = element_rect(fill = "white"),
+        panel.grid = element_line(colour = "grey90"),
+        plot.title = element_text(size = 15, face = "bold"),
+        plot.subtitle = element_text(size = 10))
+```
 
 # Data Sources
 
