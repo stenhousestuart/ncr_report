@@ -82,7 +82,7 @@ Data was sources from the National Chargepoint Registry in *July 2023* and the p
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 ncr_council_summary_pop %>% 
   select(district, devices_per_hundred_thousand) %>%
-  mutate(devices_per_hundred_thousand = round(devices_per_hundred_thousand)) %>%
+  mutate(devices_per_hundred_thousand = floor(devices_per_hundred_thousand)) %>%
   arrange(desc(devices_per_hundred_thousand)) %>%
   gt() %>%
   cols_label(
