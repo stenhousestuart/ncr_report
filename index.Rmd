@@ -96,8 +96,18 @@ ncr_council_summary_pop %>%
   tab_options(column_labels.font.weight = "bold", table.align = "left")
 ```
 
-
 </div>
+</div>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+- The Island regions of Scotland appear to have some of the highest number of devices per 100,000 population. However, relatively low population totals in these regions may contribute.
+
+- Of the mainland regions, Dumfries and Galloway appear to have the highest number of charging devices per 100,000 population.
+
 </div>
 
 ***
@@ -131,6 +141,17 @@ ncr_council_summary_pop %>%
 
 
 </div>
+</div>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+- **Glasgow** has the highest overall number of charging devices; however, this is likely expected as it also has the highest total population.
+
+- Notably, the region with the **2nd** highest number of devices is **Dumfries and Galloway** despite being ranked **13th** in population size.
+
 </div>
 
 ***
@@ -167,6 +188,17 @@ ncr_data %>%
         plot.title = element_text(size = 15, face = "bold"),
         plot.subtitle = element_text(size = 10))
 ```
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+- Following the findings above, we can see that **Dumfries and Galloway** added **68** new devices in 2022. This is the largest number of new devices added by any region in one year over the last five years. The previous highest number was **29** added in Glasgow in 2021.
+
+</div>
+
+***
 
 # Data Sources
 
