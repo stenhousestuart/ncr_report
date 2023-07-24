@@ -14,9 +14,12 @@ library(tidyverse)
 library(sf)
 library(leaflet)
 library(htmlwidgets)
+library(here)
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+scottish_councils <- st_read(dsn = "data/geo_data/", layer = "pub_las", quiet = TRUE) %>% st_transform('+proj=longlat +datum=WGS84')
 
 ncr_council_geo <- scottish_councils %>%
   left_join(ncr_council_summary_pop, by=c("local_auth" = "district"))
@@ -53,10 +56,11 @@ fig_1 <- leaflet(options = leafletOptions(minZoom = 6)) %>%
               weight = 1,
               color = "#AFAFAF",
               fillColor = ~pal_n(ncr_council_geo$n),
+              fillOpacity = 1,
               label = labels_n,
               highlightOptions = highlightOptions(
-                  weight = 3,
-                  color = "black",
+                  weight = 2,
+                  color = "#5B5B5B",
                   bringToFront = TRUE)) %>% 
   addLegend("bottomleft",
             pal = pal_n,
@@ -77,10 +81,11 @@ fig_2 <- leaflet(options = leafletOptions(minZoom = 6)) %>%
               weight = 1,
               color = "#AFAFAF",
               fillColor = ~pal(ncr_council_geo$devices_per_hundred_thousand),
+              fillOpacity = 1,
               label = labels,
               highlightOptions = highlightOptions(
-                  weight = 3,
-                  color = "black",
+                  weight = 2,
+                  color = "#5B5B5B",
                   bringToFront = TRUE)) %>% 
   addLegend("bottomleft",
             pal = pal,
@@ -90,7 +95,7 @@ fig_2 <- leaflet(options = leafletOptions(minZoom = 6)) %>%
 ```
 
 ```{r}
-saveWidget(fig_1, file = "fig_1.html")
-saveWidget(fig_2, file = "fig_2.html")
+saveWidget(fig_1, file = "maps/fig_1.html")
+saveWidget(fig_2, file = "maps/fig_2.html")
 ```
 

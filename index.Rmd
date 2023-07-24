@@ -21,6 +21,7 @@ library(gghighlight)
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
 ncr_data <- read_csv("data/raw_data/national-charge-point-registry.csv") %>% 
   clean_names()
   
@@ -71,15 +72,17 @@ Data was sources from the National Chargepoint Registry in *July 2023* and the p
 
 # Devices Per 100,000 of Population
 
+<br>
+
 <div class = "row">
-  <div class = "col-md-7">
+  <div class = "col-md-6">
   
 <!--html_preserve-->
-<iframe src = "maps/fig_2.html" width="500" height="500" frameBorder="0"> </iframe>
+<iframe src = "maps/fig_2.html" width="425" height="500" frameBorder="0"> </iframe>
 <!--/html_preserve-->
 
 </div>
-<div class = "col-md-5">
+<div class = "col-md-6">
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 ncr_council_summary_pop %>% 
@@ -93,11 +96,14 @@ ncr_council_summary_pop %>%
   opt_interactive(use_sorting = FALSE, 
                   use_search = TRUE, 
                   use_compact_mode = TRUE) %>% 
-  tab_options(column_labels.font.weight = "bold", table.align = "left")
+  tab_options(column_labels.font.weight = "bold", table.align = "left") %>% 
+  data_color(columns = devices_per_hundred_thousand, palette = "YlOrRd")
 ```
 
 </div>
 </div>
+
+<br>
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
@@ -114,16 +120,18 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 # Total Devices
 
+<br>
+
 <div class = "row">
-  <div class = "col-md-7">
+  <div class = "col-md-6">
 
 <!--html_preserve-->
-<iframe src = "maps/fig_1.html" width="500" height="500" frameBorder="0"> </iframe>
+<iframe src = "maps/fig_1.html" width="425" height="500" frameBorder="0"> </iframe>
 <!--/html_preserve-->
 
 </div>
 
-<div class = "col-md-5">
+<div class = "col-md-6">
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 ncr_council_summary_pop %>% 
@@ -136,12 +144,15 @@ ncr_council_summary_pop %>%
   opt_interactive(use_sorting = FALSE, 
                   use_search = TRUE, 
                   use_compact_mode = TRUE) %>% 
-  tab_options(column_labels.font.weight = "bold", table.align = "left")
+  tab_options(column_labels.font.weight = "bold", table.align = "left") %>% 
+  data_color(columns = n, palette = "YlOrRd")
 ```
 
 
 </div>
 </div>
+
+<br>
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
@@ -158,6 +169,8 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 
 # Trends Over Time
 
+<br>
+
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, fig.align = 'center'}
 
 ncr_data %>%
@@ -167,10 +180,7 @@ ncr_data %>%
          date_created = as.POSIXct(date_created),
          date_created = year(date_created)) %>%
   filter(date_created > 2017,
-         date_created < 2023,
-         district %in% c("Glasgow City", "Dumfries and Galloway", 
-                         "South Lanarkshire", "Fife", "City of Edinburgh", 
-                         "East Lothian")) %>% 
+         date_created < 2023) %>% 
   group_by(date_created, district) %>% 
   summarise(annual_new_by_district = n()) %>%
   ggplot(aes(x = date_created, y = annual_new_by_district, colour = district)) +
@@ -180,8 +190,8 @@ ncr_data %>%
   labs(
     x = "\n Year",
     y = "New Devices Added \n",
-    title = "New Devices Added To NCR: The Last 5 Years In Scotland",
-    subtitle = "Where Total Devices Is Greater Than 50",
+    title = "Devices Added To National Chargepoint Registry: 2018-2022",
+    subtitle = "By Local Authority",
     colour = "Local Authority") +
   theme(panel.background = element_rect(fill = "white"),
         panel.grid = element_line(colour = "grey90"),
@@ -195,6 +205,24 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 <div class = "blue">
 
 - Following the findings above, we can see that **Dumfries and Galloway** added **68** new devices in 2022. This is the largest number of new devices added by any region in one year over the last five years. The previous highest number was **29** added in Glasgow in 2021.
+
+</div>
+
+***
+
+# Conclusions
+
+<style>
+div.yellow {background-color:#fcf8c0; border-radius: 5px; padding: 20px;}
+
+</style>
+<div class = "yellow">
+
+- **Dumfries and Galloway** is notable for having a significant amount of charging devices per 100,000 population, as well as a high total number of charging devices.
+
+- **Dumfries and Galloway** added more new devices in 2022 than any region has done in a previous year (68).
+
+- Further work should be completed to understand the nature of the increase in new devices added in Dumfries and Galloway in 2022. For example, were these all newly installed devices, OR was there a delay in adding devices to the register from previous years? If these were all new devices, consideration should be given to the strategy and initiatives utilised.
 
 </div>
 
