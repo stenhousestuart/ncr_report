@@ -14,7 +14,6 @@ library(tidyverse)
 library(sf)
 library(leaflet)
 library(htmlwidgets)
-library(here)
 ```
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}

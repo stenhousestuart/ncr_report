@@ -16,7 +16,6 @@ library(janitor)
 library(leaflet)
 library(htmlwidgets)
 library(gt)
-library(plotly)
 library(gghighlight)
 ```
 
