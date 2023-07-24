@@ -1,4 +1,4 @@
-# Cancer Incidences: Report
+# National Chargepoint Registry: Report
 
 [LINK TO REPORT HOSTED ON GITHUB PAGES](https://stenhousestuart.github.io/ncr_report/)
 
